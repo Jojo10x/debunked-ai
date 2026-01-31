@@ -12,3 +12,14 @@ venv/
 
 # System
 .DS_Store
+
+# AI Models
+*.pth
+*.pt
+
+# Datasets
+data/
+downloads/
+
+# Test images
+debug_test_image.jpg
