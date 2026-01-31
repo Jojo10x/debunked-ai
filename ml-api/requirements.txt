@@ -9,5 +9,7 @@ beautifulsoup4==4.12.3
 pytesseract==0.3.10
 Pillow==10.2.0
 tqdm==4.66.1
+transformers==4.37.2
+numpy<2.0.0
 torch==2.2.0 --index-url https://download.pytorch.org/whl/cpu
 torchvision==0.17.0 --index-url https://download.pytorch.org/whl/cpu
