@@ -15,7 +15,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center py-10 bg-slate-50 px-4">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-slate-900">
-          Veritas AI
+          Debunked AI
         </h1>
         <p className="leading-7 mt-4 text-slate-600">
           Upload a screenshot and headline to detect misinformation.
