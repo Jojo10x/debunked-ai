@@ -46,4 +46,5 @@ class Scan(Base):
     text = Column(String, nullable=False)
     label = Column(String, nullable=False)
     confidence = Column(Float, nullable=False)
+    summary = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

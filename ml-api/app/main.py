@@ -106,6 +106,7 @@ async def predict_news(
             text=f"{label_prefix}{display_text}",
             label=result["label"],
             confidence=result["confidence"],
+            summary=result["summary"]
         )
         db.add(new_scan)
         await db.commit()
@@ -160,6 +161,7 @@ async def predict_url(request: URLRequest, db: AsyncSession = Depends(get_db)):
             text=f"[URL] {display_text}",
             label=result["label"],
             confidence=result["confidence"],
+            summary=result["summary"]
         )
         db.add(new_scan)
         await db.commit()
