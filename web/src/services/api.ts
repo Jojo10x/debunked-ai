@@ -47,3 +47,17 @@ export async function fetchHistory(userId: string) {
   if (!response.ok) throw new Error("Failed to load history");
   return response.json();
 }
+
+export interface ModelStats {
+  accuracy: number;
+  last_trained: string;
+  total_samples: number;
+  model_version: string;
+  architecture: string;
+}
+
+export async function fetchModelStats(): Promise<ModelStats> {
+  const response = await fetch("http://127.0.0.1:8000/stats");
+  if (!response.ok) throw new Error("Failed to load model stats");
+  return response.json();
+}

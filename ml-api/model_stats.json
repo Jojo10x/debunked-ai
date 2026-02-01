@@ -1,0 +1,7 @@
+{
+    "accuracy": 80.75,
+    "last_trained": "2026-02-01 22:07:43",
+    "total_samples": 2000,
+    "model_version": "ResNet50 + BERT (v1.1)",
+    "architecture": "Multimodal (Image + Text)"
+}

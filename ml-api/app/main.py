@@ -11,6 +11,8 @@ from uuid import UUID
 from PIL import Image
 import io
 import pytesseract
+import json
+import os
 
 from app.core.db import get_db, Scan
 from app.services.predictor import FakeNewsPredictor
@@ -130,6 +132,19 @@ async def get_history(user_id: str, db: AsyncSession = Depends(get_db)):
     )
     scans = result.scalars().all()
     return scans
+
+@app.get("/stats")
+async def get_model_stats():
+    try:
+        with open("model_stats.json", "r") as f:
+            data = json.load(f)
+        return data
+    except FileNotFoundError:
+        return {
+            "accuracy": 0, 
+            "last_trained": "Unknown", 
+            "status": "No metadata found"
+        }
 
 class URLRequest(BaseModel):
     url: str

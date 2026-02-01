@@ -50,7 +50,7 @@ export function RecentActivity({ refreshTrigger, userId }: { refreshTrigger: num
                             <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
                         )}
                         
-                        <span className="text-sm text-left truncate max-w-[200px] sm:max-w-[300px] font-medium text-slate-700">
+                        <span className="text-sm text-left truncate max-w-50 sm:max-w-75 font-medium text-slate-700">
                             {scan.text.replace("[URL] ", "").replace("[OCR] ", "")}
                         </span>
                     </div>

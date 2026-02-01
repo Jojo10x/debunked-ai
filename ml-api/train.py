@@ -2,6 +2,8 @@ import asyncio
 import os
 import torch
 import torch.nn as nn
+import json
+from datetime import datetime
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 from sqlalchemy import text
@@ -62,7 +64,7 @@ def train():
     model.to(device)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
-    
+
     criterion = nn.CrossEntropyLoss()
 
     best_accuracy = 0.0
@@ -73,7 +75,7 @@ def train():
 
         model.train()
         total_loss = 0
-        
+
         loop = tqdm(train_loader, leave=True)
         for batch in loop:
             input_ids = batch['input_ids'].to(device)
@@ -97,7 +99,7 @@ def train():
         model.eval()
         correct = 0
         total = 0
-        
+
         with torch.no_grad(): 
             for batch in val_loader:
                 input_ids = batch['input_ids'].to(device)
@@ -106,7 +108,7 @@ def train():
                 labels = batch['label'].to(device)
 
                 outputs = model(input_ids, attention_mask, images)
-                
+
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
@@ -117,6 +119,17 @@ def train():
         if accuracy > best_accuracy:
             best_accuracy = accuracy
             torch.save(model.state_dict(), SAVE_PATH)
+            print("📝 Saving training statistics...")
+            stats = {
+                "accuracy": round(best_accuracy, 2), 
+                "last_trained": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "total_samples": len(train_dataset) + len(val_dataset),
+                "model_version": "ResNet50 + BERT (v1.1)",
+                "architecture": "Multimodal (Image + Text)",
+            }
+            with open("model_stats.json", "w") as f:
+                json.dump(stats, f, indent=4)
+            print(" Stats saved to model_stats.json")
             print(f" Model Saved! (New Best Accuracy: {best_accuracy:.2f}%)")
 
 if __name__ == "__main__":
