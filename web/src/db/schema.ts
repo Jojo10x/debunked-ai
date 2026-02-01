@@ -44,6 +44,7 @@ export const explanations = pgTable("explanations", {
 
 export const scans = pgTable("scans", {
   id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull(),
   text: text("text").notNull(),
   label: text("label").notNull(), 
   confidence: doublePrecision("confidence").notNull(), 

@@ -42,6 +42,7 @@ class Scan(Base):
     __tablename__ = "scans"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(String, nullable=False)
     text = Column(String, nullable=False)
     label = Column(String, nullable=False)
     confidence = Column(Float, nullable=False)

@@ -55,6 +55,7 @@ class ScanSchema(BaseModel):
 
 @app.post("/predict")
 async def predict_news(
+    user_id: str = Form(...),
     text: str = Form(None),
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
@@ -98,6 +99,7 @@ async def predict_news(
         label_prefix = "[OCR] " if not text else ""
 
         new_scan = Scan(
+            user_id=user_id,
             text=f"{label_prefix}{display_text}",
             label=result["label"],
             confidence=result["confidence"],
@@ -112,14 +114,20 @@ async def predict_news(
 
 
 @app.get("/history", response_model=List[ScanSchema])
-async def get_history(db: AsyncSession = Depends(get_db)):
+async def get_history(user_id: str, db: AsyncSession = Depends(get_db)):
     """Fetch the last 10 scans"""
-    result = await db.execute(select(Scan).order_by(Scan.created_at.desc()).limit(10))
+    result = await db.execute(
+        select(Scan)
+        .where(Scan.user_id == user_id)
+        .order_by(Scan.created_at.desc())
+        .limit(10)
+    )
     scans = result.scalars().all()
     return scans
 
 class URLRequest(BaseModel):
     url: str
+    user_id: str
 
 @app.post("/predict/url")
 async def predict_url(request: URLRequest, db: AsyncSession = Depends(get_db)):
@@ -143,6 +151,7 @@ async def predict_url(request: URLRequest, db: AsyncSession = Depends(get_db)):
         display_text = headline[:200] + "..." if len(headline) > 200 else headline
 
         new_scan = Scan(
+            user_id=request.user_id,
             text=f"[URL] {display_text}",
             label=result["label"],
             confidence=result["confidence"],

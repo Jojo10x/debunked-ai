@@ -2,12 +2,14 @@ export interface PredictionResult {
   label: "Real" | "Fake";
   confidence: number;
   fake_probability: number;
+  scraped_headline?: string;
 }
 
-export async function predictNews(text: string, imageFile: File): Promise<PredictionResult> {
+export async function predictNews(text: string, imageFile: File, userId: string): Promise<PredictionResult> {
   const formData = new FormData();
   formData.append("text", text);
   formData.append("file", imageFile);
+  formData.append("user_id", userId);
 
   const response = await fetch("http://127.0.0.1:8000/predict", {
     method: "POST",
@@ -22,13 +24,13 @@ export async function predictNews(text: string, imageFile: File): Promise<Predic
   return response.json();
 }
 
-export async function predictUrl(url: string): Promise<PredictionResult & { scraped_headline?: string }> {
+export async function predictUrl(url: string, userId: string): Promise<PredictionResult> {
   const response = await fetch("http://127.0.0.1:8000/predict/url", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ url }),
+    body: JSON.stringify({ url, user_id: userId }),
   });
 
   if (!response.ok) {
@@ -36,5 +38,11 @@ export async function predictUrl(url: string): Promise<PredictionResult & { scra
     throw new Error(error.detail || "Failed to analyze URL");
   }
 
+  return response.json();
+}
+
+export async function fetchHistory(userId: string) {
+  const response = await fetch(`http://127.0.0.1:8000/history?user_id=${userId}`);
+  if (!response.ok) throw new Error("Failed to load history");
   return response.json();
 }

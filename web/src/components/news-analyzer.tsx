@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { UploadCloud, Link as LinkIcon, AlertTriangle, CheckCircle, Image as ImageIcon } from "lucide-react";
 import { PredictionResult, predictNews, predictUrl } from "../services/api";
 
-export function NewsAnalyzer({ onScanComplete }: { onScanComplete?: () => void }) {
+export function NewsAnalyzer({ onScanComplete, userId }: { onScanComplete?: () => void, userId: string }) {
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
@@ -24,13 +24,13 @@ export function NewsAnalyzer({ onScanComplete }: { onScanComplete?: () => void }
 
     try {
       let data;
-      
+
       if (activeTab === "upload") {
-        if (!file) return; 
-        data = await predictNews(text || "", file); 
+        if (!file) return;
+        data = await predictNews(text || "", file, userId);
       } else {
         if (!url) return;
-        data = await predictUrl(url);
+        data = await predictUrl(url, userId);
       }
 
       setResult(data);

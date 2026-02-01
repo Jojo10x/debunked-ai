@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { History, Clock } from "lucide-react";
+import { fetchHistory } from "../services/api";
 
 interface Scan {
   id: string;
@@ -12,15 +13,17 @@ interface Scan {
   created_at: string;
 }
 
-export function RecentActivity({ refreshTrigger }: { refreshTrigger: number }) {
+export function RecentActivity({ refreshTrigger, userId }: { refreshTrigger: number, userId: string }) {
   const [scans, setScans] = useState<Scan[]>([]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/history")
-      .then((res) => res.json())
+    if (!userId) return;
+
+    fetchHistory(userId)
       .then((data) => setScans(data))
-      .catch((err) => console.error("Failed to load history", err));
-  }, [refreshTrigger]); 
+      .catch((err) => console.error(err));
+
+  }, [refreshTrigger, userId]);
 
   return (
     <Card className="w-full max-w-xl mx-auto mt-6 shadow-sm">
