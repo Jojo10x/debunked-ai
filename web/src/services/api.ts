@@ -3,6 +3,7 @@ export interface PredictionResult {
   confidence: number;
   fake_probability: number;
   scraped_headline?: string;
+  summary?: string;
 }
 
 export async function predictNews(text: string, imageFile: File, userId: string): Promise<PredictionResult> {

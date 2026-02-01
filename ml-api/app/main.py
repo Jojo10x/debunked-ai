@@ -14,6 +14,7 @@ import pytesseract
 from app.core.db import get_db, Scan
 from app.services.predictor import FakeNewsPredictor
 from app.services.scraper import scrape_article
+from app.services.llm import generate_summary
 
 ml_models = {}
 
@@ -91,6 +92,8 @@ async def predict_news(
 
     try:
         result = ml_models["predictor"].predict(text, image_bytes)
+        summary = generate_summary(text, result["label"], result["confidence"])
+        result["summary"] = summary
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -144,6 +147,8 @@ async def predict_url(request: URLRequest, db: AsyncSession = Depends(get_db)):
             raise HTTPException(status_code=503, detail="Model is not loaded.")
 
         result = ml_models["predictor"].predict(headline, image_bytes)
+        summary = generate_summary(headline, result["label"], result["confidence"])
+        result["summary"] = summary
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

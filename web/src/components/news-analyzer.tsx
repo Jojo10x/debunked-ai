@@ -126,6 +126,17 @@ export function NewsAnalyzer({ onScanComplete, userId }: { onScanComplete?: () =
               </div>
             </div>
 
+            {result.summary && (
+              <div className="mb-4 p-4 bg-white/80 rounded-md border text-sm text-slate-700 shadow-sm">
+                <h4 className="font-semibold mb-1 flex items-center gap-2">
+                  🤖 AI Analysis
+                </h4>
+                <p className="leading-relaxed">
+                  {result.summary}
+                </p>
+              </div>
+            )}
+
             <div className="space-y-1">
               <div className="flex justify-between text-sm font-medium text-slate-600">
                 <span>Confidence Score</span>

@@ -6,7 +6,7 @@ export function Header() {
     <header className="flex items-center justify-between p-4 border-b bg-white shadow-sm">
       <div className="flex items-center gap-2 font-bold text-xl text-slate-800">
         <ShieldCheck className="w-8 h-8 text-blue-600" />
-        Veritas AI
+        Debunked AI
       </div>
       
       <div>
