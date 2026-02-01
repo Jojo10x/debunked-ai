@@ -25,7 +25,7 @@ def generate_summary(text: str, label: str, confidence: float):
                 {"role": "system", "content": "You are a helpful and concise fact-checking assistant."},
                 {"role": "user", "content": prompt},
             ],
-            model="llama3-8b-8192", 
+            model="llama-3.3-70b-versatile", 
             temperature=0.5,
             max_tokens=100,
         )
