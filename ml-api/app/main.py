@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
 from typing import List
 from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime
 from uuid import UUID
 from PIL import Image
@@ -48,6 +49,7 @@ class ScanSchema(BaseModel):
     text: str
     label: str
     confidence: float
+    summary: Optional[str] = None
     created_at: datetime
 
     class Config:
