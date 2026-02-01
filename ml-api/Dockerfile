@@ -12,9 +12,11 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY preload_models.py .
 
 RUN python preload_models.py
+
+COPY . .
 
 EXPOSE 8000
 
