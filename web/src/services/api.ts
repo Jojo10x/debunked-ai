@@ -1,3 +1,5 @@
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
 export interface PredictionResult {
   label: "Real" | "Fake";
   confidence: number;
@@ -12,7 +14,7 @@ export async function predictNews(text: string, imageFile: File, userId: string)
   formData.append("file", imageFile);
   formData.append("user_id", userId);
 
-  const response = await fetch("http://127.0.0.1:8000/predict", {
+  const response = await fetch(`${API_URL}/predict`, {
     method: "POST",
     body: formData,
   });
@@ -26,7 +28,7 @@ export async function predictNews(text: string, imageFile: File, userId: string)
 }
 
 export async function predictUrl(url: string, userId: string): Promise<PredictionResult> {
-  const response = await fetch("http://127.0.0.1:8000/predict/url", {
+  const response = await fetch(`${API_URL}/predict/url`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -43,7 +45,7 @@ export async function predictUrl(url: string, userId: string): Promise<Predictio
 }
 
 export async function fetchHistory(userId: string) {
-  const response = await fetch(`http://127.0.0.1:8000/history?user_id=${userId}`);
+  const response = await fetch(`${API_URL}/history?user_id=${userId}`);
   if (!response.ok) throw new Error("Failed to load history");
   return response.json();
 }
@@ -57,7 +59,7 @@ export interface ModelStats {
 }
 
 export async function fetchModelStats(): Promise<ModelStats> {
-  const response = await fetch("http://127.0.0.1:8000/stats");
+  const response = await fetch(`${API_URL}/stats`);
   if (!response.ok) throw new Error("Failed to load model stats");
   return response.json();
 }
