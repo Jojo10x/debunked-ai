@@ -35,7 +35,7 @@ export function NewsAnalyzer({ onScanComplete, userId }: { onScanComplete?: () =
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("upload");
+  const [activeTab, setActiveTab] = useState("url");
   const [result, setResult] = useState<(PredictionResult & { scraped_headline?: string }) | null>(null);
 
   const handlePredict = async () => {
@@ -94,21 +94,21 @@ export function NewsAnalyzer({ onScanComplete, userId }: { onScanComplete?: () =
         </CardHeader>
 
         <CardContent className="space-y-6 px-4 sm:px-6">
-          <Tabs defaultValue="url" onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} defaultValue="url" onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6 p-1 bg-slate-100/80 rounded-xl h-auto">
-              <TabsTrigger
-                value="upload"
-                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm py-3 transition-all"
-              >
-                <ImageIcon className="w-4 h-4" />
-                <span className="font-medium">Image Upload</span>
-              </TabsTrigger>
               <TabsTrigger
                 value="url"
                 className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm py-3 transition-all"
               >
                 <LinkIcon className="w-4 h-4" />
                 <span className="font-medium">URL Analysis</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="upload"
+                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm py-3 transition-all"
+              >
+                <ImageIcon className="w-4 h-4" />
+                <span className="font-medium">Image Upload</span>
               </TabsTrigger>
             </TabsList>
 
@@ -197,6 +197,7 @@ export function NewsAnalyzer({ onScanComplete, userId }: { onScanComplete?: () =
             whileTap={{ scale: 0.99 }}
           >
             <Button
+              key={activeTab}
               className="w-full py-6 text-base font-semibold bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-200 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
               onClick={handlePredict}
               disabled={loading || (activeTab === "upload" ? !file : !url)}
@@ -225,8 +226,8 @@ export function NewsAnalyzer({ onScanComplete, userId }: { onScanComplete?: () =
                 exit="exit"
                 transition={{ duration: 0.4, ease: "easeOut" }}
                 className={`mt-8 rounded-2xl border-2 overflow-hidden shadow-xl ${result.label === "Fake"
-                    ? "bg-linear-to-br from-red-50 via-red-50/50 to-orange-50/30 border-red-200/60"
-                    : "bg-linear-to-br from-green-50 via-green-50/50 to-emerald-50/30 border-green-200/60"
+                  ? "bg-linear-to-br from-red-50 via-red-50/50 to-orange-50/30 border-red-200/60"
+                  : "bg-linear-to-br from-green-50 via-green-50/50 to-emerald-50/30 border-green-200/60"
                   }`}
               >
                 <div className="p-6">
@@ -237,8 +238,8 @@ export function NewsAnalyzer({ onScanComplete, userId }: { onScanComplete?: () =
                     transition={{ delay: 0.1 }}
                   >
                     <div className={`p-3 rounded-xl shadow-lg shrink-0 ${result.label === "Fake"
-                        ? "bg-linear-to-br from-red-500 to-red-600 shadow-red-500/30"
-                        : "bg-linear-to-br from-green-500 to-green-600 shadow-green-500/30"
+                      ? "bg-linear-to-br from-red-500 to-red-600 shadow-red-500/30"
+                      : "bg-linear-to-br from-green-500 to-green-600 shadow-green-500/30"
                       }`}>
                       {result.label === "Fake" ? (
                         <AlertTriangle className="w-7 h-7 text-white" />
@@ -306,8 +307,8 @@ export function NewsAnalyzer({ onScanComplete, userId }: { onScanComplete?: () =
                       <Progress
                         value={result.confidence}
                         className={`h-3 bg-slate-200/60 rounded-full overflow-hidden ${result.label === "Fake"
-                            ? "[&>div]:bg-linear-to-r [&>div]:from-red-500 [&>div]:to-red-600"
-                            : "[&>div]:bg-linear-to-r [&>div]:from-green-500 [&>div]:to-green-600"
+                          ? "[&>div]:bg-linear-to-r [&>div]:from-red-500 [&>div]:to-red-600"
+                          : "[&>div]:bg-linear-to-r [&>div]:from-green-500 [&>div]:to-green-600"
                           }`}
                       />
                       <motion.div
