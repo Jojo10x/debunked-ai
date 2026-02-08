@@ -30,7 +30,13 @@ const scaleIn = {
   exit: { opacity: 0, scale: 0.95 }
 };
 
-export function NewsAnalyzer({ onScanComplete, userId }: { onScanComplete?: () => void, userId: string }) {
+interface NewsAnalyzerProps {
+  onScanComplete?: () => void;
+  userId: string;
+  onError: (message: string) => void;
+}
+
+export function NewsAnalyzer({ onScanComplete, userId, onError }: NewsAnalyzerProps) {
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState("");
@@ -56,7 +62,9 @@ export function NewsAnalyzer({ onScanComplete, userId }: { onScanComplete?: () =
       setResult(data);
       if (onScanComplete) onScanComplete();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "Error analyzing news.");
+      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : "Error analyzing news.";
+      onError(errorMessage);
     } finally {
       setLoading(false);
     }

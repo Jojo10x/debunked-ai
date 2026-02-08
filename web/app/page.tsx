@@ -7,21 +7,36 @@ import { NewsAnalyzer } from "@/src/components/news-analyzer";
 import { RecentActivity } from "@/src/components/recent-activity";
 import { Header } from "@/src/components/header";
 import { ShieldCheck, TrendingUp, Lock, ChevronRight } from "lucide-react";
+import ErrorModal from "@/src/components/error";
+
 
 export default function Home() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const { userId, isLoaded, isSignedIn } = useAuth();
 
   const handleScanComplete = () => {
     setRefreshTrigger((prev) => prev + 1);
   };
 
+  const handleError = (msg: string) => {
+    setErrorMessage(msg);
+    setErrorModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-50">
       <Header />
 
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        message={errorMessage}
+      />
+
       <main className="relative">
-        {/* Compact Header */}
         <motion.section
           className="relative py-8 px-6"
           initial={{ opacity: 0 }}
@@ -126,7 +141,11 @@ export default function Home() {
               transition={{ delay: 0.2 }}
               className="space-y-8"
             >
-              <NewsAnalyzer onScanComplete={handleScanComplete} userId={userId} />
+              <NewsAnalyzer
+                onScanComplete={handleScanComplete}
+                userId={userId}
+                onError={handleError}
+              />
               <RecentActivity refreshTrigger={refreshTrigger} userId={userId} />
             </motion.div>
           )}
