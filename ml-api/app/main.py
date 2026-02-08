@@ -161,23 +161,40 @@ class URLRequest(BaseModel):
 
 @app.post("/predict/url")
 async def predict_url(request: URLRequest, db: AsyncSession = Depends(get_db)):
-    headline, image_bytes = scrape_article(request.url)
+    headline, article_text, image_bytes = scrape_article(request.url)
 
-    if not headline or not image_bytes:
+    if not headline or not article_text or not image_bytes:
         raise HTTPException(
             status_code=400,
-            detail="Failed to scrape article. The site might be blocking bots.",
+            detail="Failed to scrape article. The site might be blocking bots or the content is hidden.",
         )
+    
+    if not headline:
+        raise HTTPException(status_code=400, detail="Could not find a headline on this page.")
+        
+    if not article_text or len(article_text) < 50:
+         raise HTTPException(
+            status_code=400, 
+            detail="Page text is empty or hidden behind JavaScript. Please use the 'Text Analysis' tab instead."
+        )
+
+    if not image_bytes:
+        raise HTTPException(status_code=400, detail="Could not find a valid image on this page.")
 
     try:
         if "predictor" not in ml_models:
             raise HTTPException(status_code=503, detail="Model is not loaded.")
 
-        result = ml_models["predictor"].predict(headline, image_bytes)
-        summary = generate_summary(headline, result["label"], result["confidence"])
+        result = ml_models["predictor"].predict(article_text, image_bytes)
+
+        summary = generate_summary(
+            article_text[:3000], result["label"], result["confidence"]
+        )
         result["summary"] = summary
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Prediction Error: {e}")
+        raise HTTPException(status_code=500, detail=f"AI Processing Failed: {str(e)}")
 
     try:
         display_text = headline[:200] + "..." if len(headline) > 200 else headline
@@ -187,11 +204,12 @@ async def predict_url(request: URLRequest, db: AsyncSession = Depends(get_db)):
             text=f"[URL] {display_text}",
             label=result["label"],
             confidence=result["confidence"],
-            summary=result["summary"]
+            summary=result["summary"],
         )
         db.add(new_scan)
         await db.commit()
-    except Exception:
+    except Exception as e:
+        print(f"Database Error: {e}")
         pass
 
     result["scraped_headline"] = headline

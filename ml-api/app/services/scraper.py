@@ -1,70 +1,121 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+import trafilatura
+from fake_useragent import UserAgent
+
 
 def scrape_article(url: str):
-    print(f" Scraping URL: {url}")
+    print(f"Sophisticated Scraper Target: {url}")
+
+    ua = UserAgent()
+    headers = {
+        "User-Agent": ua.random,
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://www.google.com/",
+    }
+
     try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
-        response = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(response.content, 'html.parser')
+        downloaded = trafilatura.fetch_url(url)
+
+        if not downloaded:
+            print(" Trafilatura fetch failed, switching to requests...")
+            response = requests.get(url, headers=headers, timeout=15)
+            response.raise_for_status()
+            response.encoding = response.apparent_encoding
+            downloaded = response.text
+
+        metadata = trafilatura.extract(
+            downloaded,
+            include_comments=False,
+            include_tables=False,
+            no_fallback=False,
+            output_format="json",
+            with_metadata=True,
+        )
+        import json
 
         headline = None
-        
-        og_title = soup.find("meta", property="og:title")
-        if og_title and og_title.get("content"):
-            headline = og_title["content"]
-        elif soup.title:
-            headline = soup.title.get_text().strip()
-        elif soup.h1:
-            headline = soup.h1.get_text().strip()
+        main_text = None
+
+        if metadata:
+            data = json.loads(metadata)
+            headline = data.get("title")
+            main_text = data.get("text")
+
+        soup = BeautifulSoup(downloaded, "html.parser")
+
+        if not headline:
+            print("Metadata missing title, scraping manually...")
+            og_title = soup.find("meta", property="og:title")
+            headline = (
+                og_title["content"]
+                if og_title
+                else (soup.title.string if soup.title else None)
+            )
+
+        if not main_text or len(main_text) < 100:
+            print("Metadata missing text, scraping manually...")
+            body_content = (
+                soup.find("div", {"id": "bodyContent"})
+                or soup.find("article")
+                or soup.find("main")
+                or soup.body
+            )
+            if body_content:
+                paragraphs = body_content.find_all("p")
+                valid_paras = [
+                    p.get_text() for p in paragraphs if len(p.get_text().split()) > 5
+                ]
+                main_text = "\n".join(valid_paras)
 
         image_url = None
-        
+
         og_image = soup.find("meta", property="og:image")
         if og_image and og_image.get("content"):
             image_url = og_image["content"]
-            
-        elif soup.find("meta", attrs={"name": "twitter:image"}):
-            image_url = soup.find("meta", attrs={"name": "twitter:image"})["content"]
 
         if not image_url:
-            images = soup.find_all("img")
+            twitter_img = soup.find("meta", attrs={"name": "twitter:image"})
+            if twitter_img:
+                image_url = twitter_img.get("content")
+
+        if not image_url:
+            target_container = soup.find("article") or soup.find("main") or soup
+            images = target_container.find_all("img")
+
             for img in images:
-                src = img.get("src", "")
+                src = img.get("src")
                 if not src:
                     continue
-                
-                if ".svg" in src.lower():
+
+                if any(
+                    x in src.lower()
+                    for x in [".svg", "logo", "icon", "avatar", "spacer"]
+                ):
                     continue
-                if "logo" in src.lower() or "icon" in src.lower():
-                    continue
-                
+
                 width = img.get("width")
-                if width and width.isdigit() and int(width) < 50:
+                if width and width.isdigit() and int(width) < 200:
                     continue
 
                 image_url = src
-                break 
-
-        print(f" Found Headline: {headline}")
-        print(f" Found Image: {image_url}")
+                break
 
         if not headline or not image_url:
-            raise Exception("Missing Headline or Image")
+            print(" Failed to find critical content.")
+            return None, None
 
-        if image_url.startswith("//"):
-            image_url = "https:" + image_url
-        elif image_url.startswith("/"):
+        if not image_url.startswith("http"):
             image_url = urljoin(url, image_url)
 
-        img_response = requests.get(image_url, headers=headers, timeout=10)
-        img_data = img_response.content
+        print(
+            f"Success: {headline[:30]}... | Text Length: {len(main_text) if main_text else 0} chars"
+        )
 
-        return headline, img_data
+        img_response = requests.get(image_url, headers=headers, timeout=10)
+        return headline, main_text, img_response.content
 
     except Exception as e:
-        print(f" Error in scraper: {e}")
-        return None, None
+        print(f" Critical Scraper Error: {e}")
+        return None, None, None
