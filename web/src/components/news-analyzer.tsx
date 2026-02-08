@@ -106,14 +106,14 @@ export function NewsAnalyzer({ onScanComplete, userId, onError }: NewsAnalyzerPr
             <TabsList className="grid w-full grid-cols-2 mb-6 p-1 bg-slate-100/80 rounded-xl h-auto">
               <TabsTrigger
                 value="url"
-                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm py-3 transition-all"
+                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm py-3 transition-all hover:cursor-pointer hover:text-blue-500"  
               >
                 <LinkIcon className="w-4 h-4" />
                 <span className="font-medium">URL Analysis</span>
               </TabsTrigger>
               <TabsTrigger
                 value="upload"
-                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm py-3 transition-all"
+                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm py-3 transition-all hover:cursor-pointer hover:text-blue-500"
               >
                 <ImageIcon className="w-4 h-4" />
                 <span className="font-medium">Image Upload</span>
