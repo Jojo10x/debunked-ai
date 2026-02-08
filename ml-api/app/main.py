@@ -46,6 +46,15 @@ app.add_middleware(
 )
 
 
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "ok",
+        "service": "Fake News Detector API",
+        "model_loaded": "predictor" in ml_models,
+        "timestamp": datetime.now().isoformat(),
+    }
+
 class ScanSchema(BaseModel):
     id: UUID
     text: str
